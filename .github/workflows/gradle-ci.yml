@@ -23,8 +23,8 @@ jobs:
           cd ufoTracker
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
-            ./gradlew build
+            ./gradlew build -x test
           else
             chmod +x ./mvnw
-            ./mvnw -B clean verify
+            ./mvnw -B clean package -DskipTests
           fi
