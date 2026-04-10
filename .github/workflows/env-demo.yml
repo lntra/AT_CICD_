@@ -1,0 +1,20 @@
+name: env-demo
+
+on:
+  push:
+
+env:
+  DEPLOY_ENV: staging
+
+jobs:
+  show-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Exibir variável de ambiente
+        run: echo "Ambiente de deploy configurado como: $DEPLOY_ENV"
+
+      - name: Confirmar valor via env block
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+        run: echo "DEPLOY_ENV=$DEPLOY_ENV"
