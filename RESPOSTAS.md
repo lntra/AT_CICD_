@@ -4,110 +4,6 @@
 
 ## Missão 4 – Implantando a aplicação no cluster
 
-### O que foi feito
-
-No mesmo arquivo `ufodb-manifests.yaml`, adicionados:
-
-- **ConfigMap** `app-config` com `DB_NAME: ufology`
-- **Secret** `db-secret` com `DB_PASSWORD: devops2025!`
-- **Deployment** `ufotracker` — 2 réplicas, imagem `infnetfernando/ufotracker:1.0`
-- **Service** `ufotracker-service` — ClusterIP porta 8080
-
-O `application.yaml` da aplicação foi configurado com variáveis de ambiente:
-
-```yaml
-host: ${REDIS_HOST:localhost}
-url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:ufology}
-username: ${POSTGRES_USERNAME:postgres}
-password: ${DB_PASSWORD:devops2025!}
-```
-
-### Manifesto: ConfigMap
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-  namespace: ufology
-data:
-  DB_NAME: ufology
-```
-
-### Manifesto: Secret
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret
-  namespace: ufology
-type: Opaque
-stringData:
-  DB_PASSWORD: "devops2025!"
-```
-
-### Manifesto: Deployment da aplicação
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ufotracker
-  namespace: ufology
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: ufotracker
-  template:
-    metadata:
-      labels:
-        app: ufotracker
-    spec:
-      containers:
-      - name: ufotracker
-        image: infnetfernando/ufotracker:1.0
-        ports:
-        - containerPort: 8080
-        env:
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: DB_NAME
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_PASSWORD
-        - name: DB_HOST
-          value: ufodb-service
-        - name: REDIS_HOST
-          value: ufocache-service
-        - name: POSTGRES_USERNAME
-          value: postgres
-```
-
-### Resultado esperado no cluster
-
-```
-kubectl get all -n ufology
-
-NAME                               READY   STATUS    RESTARTS
-pod/ufodb-xxxx                     1/1     Running   0
-pod/ufocache-xxxx                  1/1     Running   0
-pod/ufotracker-xxxx-a              1/1     Running   0
-pod/ufotracker-xxxx-b              1/1     Running   0
-
-NAME                        TYPE        CLUSTER-IP   PORT(S)
-service/ufodb-service       ClusterIP   ...          5432/TCP
-service/ufocache-service    ClusterIP   ...          6379/TCP
-service/ufotracker-service  ClusterIP   ...          8080/TCP
-```
-
----
-
 ## Parte 2 – Workflows Básicos no GitHub Actions
 
 Todos os workflows estão em `.github/workflows/` na raiz do repositório.  
@@ -133,10 +29,9 @@ jobs:
         run: echo "Hello CI/CD"
 ```
 
-**Log esperado:**
-```
-Hello CI/CD
-```
+**Log:**
+
+![hello.yml log](Images/image1.png)
 
 ---
 
@@ -161,10 +56,9 @@ jobs:
         run: echo "Rodando testes"
 ```
 
-**Log esperado:**
-```
-Rodando testes
-```
+**Log:**
+
+![tests.yml log](Images/image2.png)
 
 > **Para disparar:** crie um Pull Request em https://github.com/lntra/AT_CICD_
 
@@ -239,11 +133,9 @@ jobs:
           echo "DEPLOY_ENV=$DEPLOY_ENV"
 ```
 
-**Log esperado:**
-```
-Ambiente de deploy configurado como: staging
-DEPLOY_ENV=staging
-```
+**Log:**
+
+![env-demo log](Images/image4.png)
 
 ---
 
@@ -275,10 +167,9 @@ jobs:
           fi
 ```
 
-**Log esperado (com secret configurado):**
-```
-API_KEY configurado
-```
+**Log:**
+
+![secret-demo log](Images/image3.png)
 
 > O valor real do secret **nunca aparece no log**. O GitHub automaticamente mascara qualquer valor de secret como `***`. A lógica condicional (`if [ -n "$API_KEY" ]`) apenas confirma a presença sem expor o conteúdo.
 
@@ -338,9 +229,4 @@ São máquinas próprias (físicas ou VMs) registradas no repositório do GitHub
 - Risco de segurança maior: código de PRs externos pode executar na sua máquina
 - Requer setup inicial e monitoramento contínuo
 
----
-
-## Checklist Final
-
-| Parte 3 – Secret `API_KEY` no repositório | ✅ | Configurado e validado no check `secret-demo / show-secret (push)` |
 
