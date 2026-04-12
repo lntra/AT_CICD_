@@ -171,62 +171,17 @@ jobs:
 
 ![secret-demo log](Images/image3.png)
 
-> O valor real do secret **nunca aparece no log**. O GitHub automaticamente mascara qualquer valor de secret como `***`. A lógica condicional (`if [ -n "$API_KEY" ]`) apenas confirma a presença sem expor o conteúdo.
-
 ---
 
 ### Diferença entre Runners hospedados pelo GitHub e Auto-hospedados
 
 #### Runners hospedados pelo GitHub (_GitHub-hosted runners_)
 
-São máquinas virtuais provisionadas e gerenciadas pelo próprio GitHub. A cada execução de workflow, uma VM limpa é criada, usada e descartada.
-
-| Característica | Detalhe |
-|---|---|
-| **SO disponíveis** | Ubuntu, Windows, macOS |
-| **Manutenção** | GitHub cuida de atualizações, patches e ferramentas pré-instaladas |
-| **Custo** | Gratuito até certo limite de minutos por mês (dependendo do plano) |
-| **Isolamento** | VM limpa a cada job — sem contaminação entre execuções |
-| **Configuração** | Zero configuração necessária |
-| **Acesso à rede interna** | Não — apenas acesso à internet pública |
-
-**Vantagens:**
-- Pronto para uso imediato, sem infraestrutura própria
-- Ambiente limpo e reproduzível garantido
-- Suporta Ubuntu, Windows e macOS nativamente
-- Ideal para projetos open-source e equipes pequenas
-
-**Desvantagens:**
-- Limite de minutos gratuitos (contas pessoais: 2.000 min/mês)
-- Sem acesso a redes privadas, bancos internos ou VPNs corporativas
-- Hardware fixo (não customizável)
-- Pode ser mais lento por conta de fila de execução
+GitHub-hosted runners: são máquinas virtuais do próprio GitHub que já vêm prontas. Você não precisa configurar nada, o ambiente é limpo a cada execução e funciona bem pra maioria dos projetos. Em troca, tem limite de minutos, não dá acesso à rede interna e o hardware não é customizável.
 
 ---
 
 #### Runners auto-hospedados (_Self-hosted runners_)
 
-São máquinas próprias (físicas ou VMs) registradas no repositório do GitHub. O agente do GitHub Actions é instalado na máquina e ela passa a receber jobs.
-
-| Característica | Detalhe |
-|---|---|
-| **Hardware** | Customizável — pode usar GPU, SSD NVMe, mais RAM, etc. |
-| **Manutenção** | Responsabilidade do usuário/empresa |
-| **Custo** | Sem cobrança de minutos — apenas custo da infraestrutura própria |
-| **Acesso à rede** | Total — acessa bancos internos, VPNs, serviços corporativos |
-| **Ambiente** | Persistente entre execuções (pode haver contaminação de estado) |
-
-**Vantagens:**
-- Sem limite de minutos de execução
-- Acesso completo à infraestrutura interna (banco de dados, registros privados, etc.)
-- Hardware dedicado — pode ser significativamente mais rápido para builds pesados
-- Controle total do ambiente de execução
-- Útil para compilar projetos que precisam de dependências específicas ou licenças de software
-
-**Desvantagens:**
-- Manutenção e atualização são responsabilidade da equipe
-- Se o ambiente não for limpo entre jobs, pode haver efeitos colaterais
-- Risco de segurança maior: código de PRs externos pode executar na sua máquina
-- Requer setup inicial e monitoramento contínuo
-
+Self-hosted runners: são máquinas suas (ou da empresa) conectadas ao GitHub. Você tem controle total do hardware e acesso à rede interna, sem limite de minutos. Em compensação, precisa cuidar da manutenção, segurança e evitar problemas de ambiente sujo entre execuções.
 
